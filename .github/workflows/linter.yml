@@ -1,0 +1,36 @@
+name: Lint Code Base
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+
+      - name: Lint Ruby
+        run: |
+          gem install rubocop -v '~> 0.86.0'
+          rubocop
+
+      - name: Lint Other Languages
+        uses: docker://github/super-linter:v3.3.0
+        env:
+          VALIDATE_YAML: true
+          VALIDATE_JSON: true
+          VALIDATE_MD: true
+          VALIDATE_BASH: true
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_DOCKER: true
+          VALIDATE_CSS: true
+          VALIDATE_ENV: true

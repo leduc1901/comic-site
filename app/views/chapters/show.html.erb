@@ -1,0 +1,18 @@
+<div class="chapter-setting">
+  <button><%= link_to @manga.name, manga_path(@manga) %></button>
+  <%= form_tag manga_chapter_path, controller: 'chapter', action: 'show', method: 'get' do %>
+    <%= select_tag :chapter_select, options_from_collection_for_select(@manga.chapters,"id","name", selected: @chapter.id), :onchange=>'chapterSelect(this.value)'%>
+  <% end %>
+  <button><%= link_to 'Previous Chapter', manga_chapter_path(@manga.id, @next) %></button>
+  <button><%= link_to 'Next Chapter', manga_chapter_path(@manga.id, @prev) %></button>
+</div>
+<div class="photo-list">
+  <% @chapter.photos.includes(:blob).each do |photo| %>
+    <%= image_tag rails_blob_url(photo) %>
+  <% end %>
+</div>
+<script>
+  function chapterSelect(val){
+    window.location = val
+  } 
+</script>

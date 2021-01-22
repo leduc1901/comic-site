@@ -1,0 +1,139 @@
+<header class="header">
+  <div class="container d-flex nav-header">
+    <div class="nav-brand">
+      <h3><%= t("index.title") %></h3>
+    </div>
+    <div class="nav-search d-flex">
+      <input type="text" placeholder="Find manga..."/>
+      <div class="search-btn">
+        <i class="fa fa-search" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div>
+      <% if user_signed_in? %>
+        <%= image_tag current_user.avatar.attached? ? rails_blob_url(current_user.avatar, only_path: true) : 'anonymous.jpeg', class: 'user-ava' %>
+        <%= link_to  current_user.name, edit_user_path(current_user.id) %>
+        <%= link_to  "Log Out", destroy_user_session_path, method: :delete %>
+      <% else %>
+        <%= link_to  "Log In", new_user_session_path %>
+        <%= link_to  "Sign Up", new_user_registration_path %>
+      <% end %>
+    </div>
+  </div>
+  <div class="container nav-menu">
+    <button class="<%= 'btn-active' if @sort.nil? %>">
+      <%= link_to root_path do %>
+        <i class="fa fa-home" aria-hidden="true"></i>
+      <% end %> 
+    </button>
+    <button class="<%= 'btn-active' if @sort == 'completed' %>">
+      <%= link_to  "Đã Hoàn Thành", root_path(sort: 'completed') %>
+    </button>
+    <button class="<%= 'btn-active' if @sort == 'ongoing' %>">
+      <%= link_to  "Đang Tiến Hành", root_path(sort: 'ongoing') %>
+    </button>
+    <button class="<%= 'btn-active' if @sort == 'find_name' %>">
+      <%= link_to  "Xếp theo tên", root_path(sort: 'find_name') %> 
+    </button>
+    <button class="<%= 'btn-active' if @sort == 'date' %>">
+      <%= link_to  "Xếp theo date", root_path(sort: 'date') %>
+    </button>
+    <button class="<%= 'btn-active' if @sort == 'chap' %>">
+      <%= link_to  "Xếp theo số Chapter", root_path(sort: 'chap') %>
+    </button>
+    <button class="<%= 'btn-active' if @sort == 'subcribe' %>">
+      <%= link_to  "Truyện Đang Theo Dõi", root_path(sort: 'subcribe') %>
+    </button>
+  </div>
+</header>
+<div class="container manga-body">
+  <h4>NEW MANGA ></h4>
+  <div class="owl-carousel">
+    <% @mangas.each do |manga| %>
+      <div class="slider-item">
+        <%= link_to manga_path(manga.id) do %>
+          <%= image_tag rails_blob_url(manga.cover, only_path: true), class: 'img-fluid' %>
+        <% end %>
+        <div class="slider-caption">
+          <h5>
+            <%= manga.name %>
+          </h5>
+          <p>
+            Chapter <%= manga.chapters.first.name.split.last %>
+          </p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  <h4>ALL MANGA ></h4>
+  <div class="manga-container">
+    <div class="manga-list">
+      <% @mangas.each do |manga| %>
+        <div class="manga-focus">
+          <div class="manga-image">
+            <%= link_to manga_path(manga.id) do %>
+              <%= image_tag rails_blob_url(manga.cover, only_path: true), class: 'img-fluid' %>
+            <% end %>
+            <div class="manga-caption">
+              <i class="fa fa-eye" aria-hidden="true"></i><%= manga.views_count%>
+            </div>
+          </div>
+          <h5 class="manga-name">
+            <%= manga.name %>
+          </h5>
+          <div class="manga-chapters">
+            <% manga.chapters.first(3).each do |chap|%>
+              <%= link_to  "Chapter #{chap.name.split.last}", manga_chapter_path(chap.manga_id ,chap.id) %>
+              <br>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="manga-side">
+      <div class="manga-sub">
+        <h5>Truyện Đang Theo Dõi</h5>
+        <p>Hướng dẫn theo dõi truyện</p>
+      </div>
+      <div class="manga-top">
+        <div class="manga-top-options">
+          <div class="manga-top-option top-month">
+            TOP THÁNG
+          </div>
+          <div class="manga-top-option">
+            TOP TUẦN
+          </div>
+          <div class="manga-top-option">
+            TOP NGÀY
+          </div>
+        </div>
+        <% @mangas.first(5).each.with_index do |manga, index| %>
+          <div class="manga-top-list">
+            <span class="manga-top-rank"><%= index + 1%></span>
+            <div class="manga-top-info">
+              <%= image_tag rails_blob_url(manga.cover, only_path: true), class: 'img-fluid' %>
+              <div class="manga-top-specific">
+                <h5><%= manga.name %></h5>
+                <%= link_to  "Chapter #{manga.chapters.first.name.split.last}", manga_chapter_path(manga.id ,manga.chapters.first.id) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <div class="manga-comments">
+        <h5>New Comments</h5>
+        <% @comments.each do |comment| %>
+          <%= link_to  comment.manga.name, manga_path(comment.manga_id) %>
+          <div class="manga-comment">
+            <%= image_tag comment.user_id == 0 ? "anonymous.jpeg" : comment.user.avatar.attached? ? rails_blob_url(comment.user.avatar, only_path: true) : 'anonymous.jpeg', class: 'user-ava' %>
+            <div class="manga-comment-info">
+              <p><%= comment.user_id == 0 ? 'Anonymous' : comment.user.name %></p>
+              <p><%= comment.content %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<%= javascript_pack_tag 'carousel' %>

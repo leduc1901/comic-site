@@ -1,0 +1,4 @@
+:schedule:
+  add_manga_truyentranhtuan:
+    cron: '* * * * *'
+    class: AddMangaFromTruyenTranhTuan

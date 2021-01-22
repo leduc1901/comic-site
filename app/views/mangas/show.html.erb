@@ -1,0 +1,74 @@
+<div class="manga-title">
+  <%= @manga.name %>
+  <h5>Cập nhật vào lúc <%= @manga.updated_at.localtime.strftime '%Y-%m-%d %H:%M:%S' %></h5>
+</div>
+<div class="manga-details">
+  <div>
+    <%= image_tag  rails_blob_url(@manga.cover, only_path: true) %>
+  </div>
+  <div class="manga-info">
+    <h4>Tác Giả: <%= @manga.author_id.nil? ? '' : @manga.author.name %></h4>
+    <h4>Tình Trạng: Đang tiến hành</h4>
+    <h4>Thể loại: 
+      <% @manga.manga_categories.includes(:category).each do |category| %>
+         <%= category.category.name %>.
+      <%end%>
+    </h4>
+    <h4>Lượt xem: <%= @manga.views_count %></h4>
+    <% if user_signed_in? %>
+      <%= form_tag( subcribe_mangas_path , remote: true) do %>
+        <%= number_field_tag :manga_id , @manga.id , class: "hidden"  %>
+        <%= number_field_tag :user_id , current_user.id , class: "hidden"  %>
+        <%= submit_tag @manga.subcribes.find_by(user_id: current_user.id).nil? ? 'Subcribe' : 'Unsubcribe', class: "btn btn-primary", id: "subcribe-button" %>
+      <% end %>
+      <%= form_tag( like_path , remote: true) do %>
+        <%= number_field_tag :manga_id , @manga.id , class: "hidden"  %>
+        <%= number_field_tag :user_id , current_user.id , class: "hidden"  %>
+        <%= submit_tag @manga.likes.find_by(user_id: current_user.id).nil? ? 'Like' : 'Unlike', class: "btn btn-primary", id: "like-button" %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+<div class="manga-description">
+  <h3>Nội dung chính</h3>
+  <p><%= @manga.description%></p>
+</div>
+<div class="manga-description">
+  <h3>Danh sách chương</h3>
+  <div class="chapter-list">
+    <div class="chapter-focus">
+      <h4>Số Chương</h4>
+    </div>
+    <% @manga.chapters.each do |chapter| %>
+      <div class="chapter-focus chapter-details">
+        <%= link_to  chapter.name, manga_chapter_path(chapter.manga_id ,chapter.id) %>
+      </div>
+    <% end %>
+  </div>
+  <h3>Bình Luận</h3>
+  <div id="comment">
+    <%= form_for @comment, remote: true do |f| %>
+      <%= f.label :manga_id, @manga.id , class: "hidden"%>
+      <%= f.number_field :manga_id , value: @manga.id , class: "hidden"  %>
+      <%= f.label :user_id, "Bình Luận Với Tư Cách: "  %>
+      <% if user_signed_in? %>      
+        <%= f.select :user_id , [[current_user.name , current_user.id] , ["Anonymous" , 0]] , class: "form-control" %>
+      <% else %>
+        <%= f.select :user_id , [["Anonymous" , 0]] , class: "form-control" %>
+      <% end %>
+      <br>
+      <%= f.label :content , 'Nội Dung'%>
+      <br>
+      <%= f.text_area :content, id: 'comment-text', data: { emojiable: true } %>
+      <%= f.submit "Gửi", class: "btn btn-primary" %>
+    <% end %>   
+    <button id="emoji-trigger">Emoji</button>
+  </div>
+  <h3>Tất Cả Bình Luận</h3>
+  <div id="comments">
+    <%= render @comments%>
+  </div>
+</div>
+<%= javascript_pack_tag 'emoji-picker' %>
+<%= javascript_pack_tag 'subcribe' %>
+<%= javascript_pack_tag 'like' %>

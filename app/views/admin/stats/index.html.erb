@@ -1,0 +1,8 @@
+<%= javascript_pack_tag 'application' %>
+<div class="container">
+  <h1>Tổng số Users : <%= @users %></h1>
+  <h1>Tổng số Manga : <%= @mangas %></h1>
+  <h1>Tổng số Comment : <%= @comments %></h1>
+  <h1 class="mt-3">Số lượng thành viên đăng kí theo tháng</h1>
+</div>
+<%= column_chart User.group_by_month(:created_at).count %>
